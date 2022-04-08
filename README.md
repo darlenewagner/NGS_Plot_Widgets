@@ -5,6 +5,7 @@
 Use of a Python virtual environment is recommended where the Python version should be 3.9 or higher.
 After cd into the subfolder where you want the Python virtual environment, write the following command:
 ```virtualenv -p /apps/x86_64/python/3.9.1/bin/python ./```
+
 The specific path for virtualenv may differ according to where your python binary is installed on your system.
 Next, install the two prerequisite Python modules, Biopython and Matplotlib:
 ```bin/pip install biopython```
