@@ -1,5 +1,8 @@
 # NGS_Plot_Widgets
+## Usage Statement
 usage: python fullPlotShuffledFastq.py filepath/filename.fastq(.gz) --outputType [F/J/N]
+## Installation Instructions
+## Long Description
 fullPlotShuffledFastq.py computes sequence lengths and average PHRED for shuffled paired reads in fastq.  
 It expects a single fastq(.gz) input and outputs a Readstatistics.README.txt, a Readstatistics.json, and 
 a .png image showing PHRED quality histograms for forward (R1) and reverse (R2) reads, all in a folder
