@@ -4,16 +4,23 @@
 ### Installation Instructions
 Use of a Python virtual environment is recommended where the Python version should be 3.9 or higher.
 After cd into the subfolder where you want the Python virtual environment, write the following command:
+
 ```virtualenv -p /apps/x86_64/python/3.9.1/bin/python ./```
 
 The specific path for virtualenv may differ according to where your python binary is installed on your system.
 Next, install the two prerequisite Python modules, Biopython and Matplotlib:
+
 ```bin/pip install biopython```
 ```bin/pip install matplotlib```
+
 Then, install NGS_Plot_Widgets by git clone:
+
 ```git clone https://github.com/darlenewagner/NGS_Plot_Widgets.git```
+
 Finally, test fullPlotShuffledFastq.py using the included test fastq.gz:
+
 ```bin/python NGS_Plot_Widgets/fullPlotShuffledFastq.py NGS_Plot_Widgets/EnterovirusD70_SRR13402413_Pairs.fastq.gz```
+
 ### Long Description
 fullPlotShuffledFastq.py computes sequence lengths and average PHRED for shuffled paired reads in fastq.  
 It expects a single fastq(.gz) input and outputs a Readstatistics.README.txt, a Readstatistics.json, and 
