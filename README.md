@@ -2,7 +2,7 @@
 ### Usage Statement
 ```python fullPlotShuffledFastq.py filepath/filename.fastq(.gz) --outputType [F/J/N]```
 ### Installation Instructions
-Use of a <ul>Python virtual environment</ul> is recommended to facilitate installation of modules. The Python version should be 3.9 or higher.
+Use of a <i>Python virtual environment</i> is recommended to facilitate installation of modules. The Python version should be 3.9 or higher.
 After changing directory (cd) into the subfolder where you want the Python virtual environment, write the following command:
 
 ```virtualenv -p /apps/x86_64/python/3.9.1/bin/python ./```
