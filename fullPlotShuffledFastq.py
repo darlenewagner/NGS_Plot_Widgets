@@ -39,6 +39,8 @@ args = parser.parse_args()
 
 print(args.filename.name)
 
+basePath = os.getcwd()
+inPath = os.path.split(args.filename.name)
 
 myTitle = re.split(r'\/', args.filename.name)
 newTitle = re.sub('\.f(ast)?q(\.gz)', '', myTitle[len(myTitle) - 1])
@@ -55,7 +57,7 @@ nameCheck = ''
 pairingPreserved = 'Y'
 warned = 0
 
-logger.info("Reading file {}".format(args.filename.name))
+logger.info("Reading file {}/{}".format(basePath, inPath[0]))
 
 myFastq = ''
 tempFas = re.sub(r'.gz', '', args.filename.name)
@@ -90,11 +92,13 @@ medLenFwd = statistics.median(forwardLen)
 avgLenFwd = statistics.mean(forwardLen)
 minLenFwd = min(forwardLen)
 medFwdAvgPHRED = statistics.median(forwardAvg)
+avgFwdAvgPHRED = statistics.mean(forwardAvg)
 minFwdAvgPHRED = min(forwardAvg)
 medLenRev = statistics.median(reverseLen)
 avgLenRev = statistics.mean(reverseLen)
 minLenRev = min(reverseLen)
 medRevAvgPHRED = statistics.median(reverseAvg)
+avgRevAvgPHRED = statistics.mean(reverseAvg)
 minRevAvgPHRED = min(reverseAvg)
 
 #forwardAvg = np.random.normal(size = 500000) + 30
@@ -140,10 +144,10 @@ if(args.outputType != 'J'):
 
 jsonDict = {
         newTitle : {"read length" : { "median" : { "R1" : medLenFwd, "R2" : medLenRev }, "average" : { "R1" : avgLenFwd, "R2" : avgLenRev }, "minimum" : { "R1" : minLenFwd, "R2" : minLenRev } }, 
-                    "read PHRED quality" : { "median" : { "R1" : medFwdAvgPHRED, "R2" : medRevAvgPHRED }, "minimum" : {"R1" : minFwdAvgPHRED, "R2" : minRevAvgPHRED} }, "Read Pairing Preserved" : pairingPreserved } }
+                    "read PHRED quality" : { "median" : { "R1" : medFwdAvgPHRED, "R2" : medRevAvgPHRED }, "average" : {"R1" : avgFwdAvgPHRED, "R2" : avgRevAvgPHRED}, "minimum" : {"R1" : minFwdAvgPHRED, "R2" : minRevAvgPHRED} }, "Read Pairing Preserved" : pairingPreserved } }
 
 if(args.outputType == 'J'):
-        with open("/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/QC_" + newTitle + ".json", "w") as jsummary:
+        with open(basePath + "/" + inPath[0] + "/QC_" + newTitle + ".json", "w") as jsummary:
                 json.dump(jsonDict, jsummary)
 else:
         with open("/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/QC_" + newTitle + "/ReadStatistics.json", "w") as jsummary:
