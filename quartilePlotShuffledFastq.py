@@ -29,7 +29,7 @@ ch.setFormatter(formatter)
 #add ch to logger
 logger.addHandler(ch)
 
-parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq (Expects single fastq input)', usage="python fullPlotShuffledFastq.py filepath/filename.fastq(.gz) --outputType [F/J/N]")
+parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq (Expects single fastq input)', usage="python quartilePlotShuffledFastq.py filepath/filename.fastq(.gz) --outputType [F/J/N] --force [Y/N]")
 
 parser.add_argument('filename', type=ext_check('.fastq', 'fastq.gz', argparse.FileType('r')))
 
@@ -94,6 +94,7 @@ logger.info("Finished reading {}".format(args.filename.name))
 medLenFwd = statistics.median(forwardLen)
 avgLenFwd = statistics.mean(forwardLen)
 minLenFwd = min(forwardLen)
+maxFwdAvgPHRED = max(forwardAvg)
 medFwdAvgPHRED = statistics.median(forwardAvg)
 lqFwdAvgPHRED = np.percentile(forwardAvg, 25)
 uqFwdAvgPHRED = np.percentile(forwardAvg, 75)
@@ -102,6 +103,7 @@ minFwdAvgPHRED = min(forwardAvg)
 medLenRev = statistics.median(reverseLen)
 avgLenRev = statistics.mean(reverseLen)
 minLenRev = min(reverseLen)
+maxRevAvgPHRED = max(reverseAvg)
 medRevAvgPHRED = statistics.median(reverseAvg)
 lqRevAvgPHRED = np.percentile(reverseAvg, 25)
 uqRevAvgPHRED = np.percentile(reverseAvg, 75)
@@ -165,7 +167,7 @@ if(args.outputType != 'J'):
 
 jsonDict = {
         newTitle : {"read length" : { "median" : { "R1" : medLenFwd, "R2" : medLenRev }, "average" : { "R1" : avgLenFwd, "R2" : avgLenRev }, "minimum" : { "R1" : minLenFwd, "R2" : minLenRev } }, 
-                    "read PHRED quality" : {"upperQuartile" : {"R1" : uqFwdAvgPHRED, "R2" : uqRevAvgPHRED }, "median" : { "R1" : medFwdAvgPHRED, "R2" : medRevAvgPHRED }, "lowerQuartile" : {"R1" : lqFwdAvgPHRED, "R2" : lqRevAvgPHRED }, "average" : {"R1" : avgFwdAvgPHRED, "R2" : avgRevAvgPHRED}, "minimum" : {"R1" : minFwdAvgPHRED, "R2" : minRevAvgPHRED} }, "Read Pairing Preserved" : pairingPreserved } }
+                    "read PHRED quality" : {"maximum" : {"R1" : maxFwdAvgPHRED, "R2" : maxRevAvgPHRED}, "upperQuartile" : {"R1" : uqFwdAvgPHRED, "R2" : uqRevAvgPHRED }, "median" : { "R1" : medFwdAvgPHRED, "R2" : medRevAvgPHRED }, "lowerQuartile" : {"R1" : lqFwdAvgPHRED, "R2" : lqRevAvgPHRED }, "average" : {"R1" : avgFwdAvgPHRED, "R2" : avgRevAvgPHRED}, "minimum" : {"R1" : minFwdAvgPHRED, "R2" : minRevAvgPHRED} }, "Read Pairing Preserved" : pairingPreserved } }
 
 if((args.outputType == 'J') and (args.force == 'N')):
         try:
