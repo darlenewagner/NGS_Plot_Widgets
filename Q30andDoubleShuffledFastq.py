@@ -58,46 +58,61 @@ iter = 0
 myFastq1 = open(args.filename1[0].name, "r")
 myFastq2 = open(args.filename2[0].name, "r")
 
-r1Q30 = 0
-r1Len = 1
-r2Q30 = 0
-r2Len = 1
+r1Q30_1 = 0
+r1Len_1 = 1
+r2Q30_1 = 0
+r2Len_1 = 1
 
 for record in SeqIO.parse(myFastq1, "fastq"):
         if(iter % 2 == 0):
                 j = 0
-                r1Len = r1Len + len(record.seq)
+                r1Len_1 = r1Len_1 + len(record.seq)
                 while( j < len(record.seq)):
                         if(record.letter_annotations["phred_quality"][j] >= 30):
-                                r1Q30 = r1Q30 + 1
+                                r1Q30_1 = r1Q30_1 + 1
                         j = j + 1
                 forwardAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
         elif(iter % 2 == 1):
                 strand = record.description.split(" ")
                 j = 0
-                r2Len = r2Len + len(record.seq)
+                r2Len_1 = r2Len_1 + len(record.seq)
                 while( j < len(record.seq) ):
                         if(record.letter_annotations["phred_quality"][j] >= 30 ):
-                                r2Q30 = r2Q30 + 1
+                                r2Q30_1 = r2Q30_1 + 1
                         j = j + 1
                 reverseAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
         iter = iter + 1
 
 
-print("Forward: %0.2f, Reverse: %0.2f" % (r1Q30/r1Len, r2Q30/r2Len))
+print("%s, Forward: %0.2f, Reverse: %0.2f" % (myTitle1[len(myTitle1) - 2], r1Q30_1/r1Len_1, r2Q30_1/r2Len_1))
+
+
+r1Q30_2 = 0
+r1Len_2 = 1
+r2Q30_2 = 0
+r2Len_2 = 1
 
 for record in SeqIO.parse(myFastq2, "fastq"):
         if(iter % 2 == 0):
-                #print("%s,%i,%0.2f," % (record.description, len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])), end="")
+                j = 0
+                r1Len_2 = r1Len_2 + len(record.seq)
+                while( j < len(record.seq)):
+                        if(record.letter_annotations["phred_quality"][j] >= 30):
+                                r1Q30_2 = r1Q30_2 + 1
+                        j = j + 1
                 forwardAvg2.append(statistics.mean(record.letter_annotations["phred_quality"]))
         elif(iter % 2 == 1):
                 strand = record.description.split(" ")
-                #print("%s,%i,%0.2f" % (strand[1], len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])))
+                j = 0
+                r2Len_2 = r2Len_2 + len(record.seq)
+                while( j < len(record.seq) ):
+                        if(record.letter_annotations["phred_quality"][j] >= 30 ):
+                                r2Q30_2 = r2Q30_2 + 1
+                        j = j + 1
                 reverseAvg2.append(statistics.mean(record.letter_annotations["phred_quality"]))
         iter = iter + 1
 
-#forwardAvg1 = np.random.normal(size = 500000) + 30
-#reverseAvg1 = 1.5*np.random.normal(size = 500000) + 25
+print("%s, Forward: %0.2f, Reverse: %0.2f" % (myTitle2[len(myTitle2) - 2], r1Q30_2/r1Len_2, r2Q30_2/r2Len_2))
 
 if(args.outputType != 'C'):
         SMALL_SIZE = 20
