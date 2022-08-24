@@ -32,15 +32,15 @@ parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="-
 
 args = parser.parse_args()
 
-print(args.filename1[0].name)
-print(args.filename2[0].name)
+#print(args.filename1[0].name)
+#print(args.filename2[0].name)
 
 ## File names used in plot titles
 myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
 myTitle2 = re.split(r'[\.\/]', args.filename2[0].name)
 
-print(myTitle1[len(myTitle1) - 2])
-print(myTitle2[len(myTitle2) - 2])
+#print(myTitle1[len(myTitle1) - 2])
+#print(myTitle2[len(myTitle2) - 2])
 
 csvRow1 = []
 forwardLen1 = []
@@ -85,9 +85,9 @@ for record in SeqIO.parse(myFastq1, "fastq"):
         iter = iter + 1
 
 if(args.unpaired == 'F'):
-        print("%s, Forward: %0.2f, Reverse: %0.2f" % (myTitle1[len(myTitle1) - 2], r1Q30_1/r1Len_1, r2Q30_1/r2Len_1))
+        print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*r1Q30_1/r1Len_1, 100*r2Q30_1/r2Len_1))
 else:
-        print("%s, Paired: %0.3f" % (myTitle1[len(myTitle1) - 6], (r1Q30_1 + r2Q30_1)/(r1Len_1 + r2Len_1)))
+        print("%s, Paired_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_1 + r2Q30_1)/(r1Len_1 + r2Len_1)))
 
 
 r1Q30_2 = 0
@@ -116,9 +116,9 @@ for record in SeqIO.parse(myFastq2, "fastq"):
         iter = iter + 1
 
 if(args.unpaired == 'F'):
-        print("%s, Forward: %0.2f, Reverse: %0.2f" % (myTitle2[len(myTitle2) - 2], r1Q30_2/r1Len_2, r2Q30_2/r2Len_2))
+        print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle2[len(myTitle2) - 2], 100*r1Q30_2/r1Len_2, 100*r2Q30_2/r2Len_2))
 else:
-        print("%s, Paired: %0.3f" % (myTitle1[len(myTitle1) - 6], (r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
+        print("%s, Paired_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
 
 if(args.outputType == 'Q'):
         sys.exit()
