@@ -22,6 +22,14 @@ def ext_check(expected_ext, expected_ext3, openner):
 def Intersection(list1, list2):
     return sorted(set(list1).intersection(list2))
 
+## Function: Complement
+
+def Compl(list1, intersec):
+    snpSet1 = set(list1)
+    snpSet2 = set(intersec)
+    return list(snpSet1 - snpSet2)
+
+
 logger = logging.getLogger("vennDiagramPlotColumn.py")
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
@@ -100,6 +108,10 @@ set2[snpsName2+"_SNPs"] = pd.Series(positions2)
 
 print(set2.describe())
 
+concordant = Intersection(positions1, positions2)
+discordant1 = Compl(positions1, positions2)
+discordant2 = Compl(positions2, positions1)
+
 #fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(6,5))
 
 #fig.text(0.04, 0.5, 'SNPs Count', va='center', rotation='vertical')
@@ -108,9 +120,10 @@ print(set2.describe())
 #axes.hist(positions1, bins = 30, color='green')
 #axes.set_title("SARS-CoV-2 " + args.title)
 
-venn2(subsets = (30, 10, 5), set_labels = ('MiSeq', 'iSeq'))
+venn2(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq', 'iSeq'))
+plt.title("MiSeq to iSeq SNPs Concordance")
 
 ## remember to change filepath to your local installation of the Python virtual environment
-plt.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/' + args.title + '_SNPs_positions.png')
+plt.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/' + args.title + '_allSNPs_positions.png')
 
 
