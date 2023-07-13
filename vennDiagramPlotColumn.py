@@ -120,10 +120,19 @@ discordant2 = Compl(positions2, positions1)
 #axes.hist(positions1, bins = 30, color='green')
 #axes.set_title("SARS-CoV-2 " + args.title)
 
-venn2(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq', 'iSeq'))
-plt.title("MiSeq to iSeq SNPs Concordance")
+plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(7.75,6))
+
+out = venn2(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq          ', '          iSeq'))
+
+for text in out.set_labels:
+        text.set_fontsize(18)
+
+for text in out.subset_labels:
+        text.set_fontsize(18)
+
+plt.title("Norovirus MiSeq to iSeq SNPs Concordance", fontsize=20)
 
 ## remember to change filepath to your local installation of the Python virtual environment
-plt.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/' + args.title + '_allSNPs_positions.png')
+plt.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/' + args.title + '_NoroSNPs_positions.png')
 
 
