@@ -3,7 +3,7 @@ import argparse, logging, warnings, json
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib_venn import venn2
+from matplotlib_venn import venn2, venn2_unweighted
 
 ## Plots numbers in the second column of a two-column dataframe, presumably insert lengths
 ## Requires Biopython, Numpy, and Matplotlib
@@ -47,6 +47,8 @@ parser.add_argument('filename1', type=ext_check('.txt', '.tsv', argparse.FileTyp
 parser.add_argument('filename2', type=ext_check('.txt', '.tsv', argparse.FileType('r')))
 
 parser.add_argument('--outputType', '-o', default='S', choices=['S', 'P'], help="--outputType S for simple, text output or P for venn diagram plot image.")
+
+parser.add_argument('--plotScale', '-s', default='W', choices=['W', 'U'], help="--plotScale W for weighted venn diagram and U for unweighted venn diagram.")
 
 parser.add_argument('--title', '-t', default='SNPs Concordance', help='Title for plot and output file names')
 
@@ -112,27 +114,29 @@ concordant = Intersection(positions1, positions2)
 discordant1 = Compl(positions1, positions2)
 discordant2 = Compl(positions2, positions1)
 
-#fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(6,5))
+## --outputType P for printing the venn diagram through matplotlib-venn
+if(args.outputType == 'P'):
+    #fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(6,5))
+    #fig.text(0.04, 0.5, 'SNPs Count', va='center', rotation='vertical')
+    #fig.text(0.45, 0.04, 'Genome Position', va='center')
+    #axes.hist(positions1, bins = 30, color='green')
+    #axes.set_title("SARS-CoV-2 " + args.title)
 
-#fig.text(0.04, 0.5, 'SNPs Count', va='center', rotation='vertical')
-#fig.text(0.45, 0.04, 'Genome Position', va='center')
+    plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(7.75,6))
 
-#axes.hist(positions1, bins = 30, color='green')
-#axes.set_title("SARS-CoV-2 " + args.title)
-
-plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(7.75,6))
-
-out = venn2(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq          ', '          iSeq'))
-
-for text in out.set_labels:
+    if(args.plotScale == 'W'):
+        out = venn2(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq          ', '          iSeq'))
+    elif(args.plotScale == 'U'):
+        out = venn2_unweighted(subsets = (len(discordant1), len(discordant2), len(concordant)), set_labels = ('MiSeq          ', '          iSeq'))
+    
+    for text in out.set_labels:
         text.set_fontsize(18)
 
-for text in out.subset_labels:
+    for text in out.subset_labels:
         text.set_fontsize(18)
 
-plt.title("Norovirus MiSeq to iSeq SNPs Concordance", fontsize=20)
-
-## remember to change filepath to your local installation of the Python virtual environment
-plt.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/' + args.title + '_NoroSNPs_positions.png')
+    plt.title(args.title, fontsize=48, loc='left')
+    ## remember to change filepath to your local installation of the Python virtual environment
+    plt.savefig('/scicomp/groups/OID/NCIRD/DVD/GRVLB/pdd/Temp/Darlene/' + args.title + '_v_OL913976.png')
 
 
