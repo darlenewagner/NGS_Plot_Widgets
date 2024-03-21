@@ -5,6 +5,7 @@ from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from tabulate import tabulate
 
 ## Script for plotting average PHRED score per read and outputting data frames of PHRED averages
 ## Requires Biopython, Numpy, and Matplotlib
@@ -113,15 +114,28 @@ if(args.outputType != 'C'):
         fig1.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/fwd_and_rev_PHRED.png')
 
 if(args.outputType != 'P'):
+
         dfMiSeqPHRED = pd.DataFrame()
+        stringList = []
+        stringFwdList = []
+        stringRevList = []
         if(args.unpaired == 'F'):
-            pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_MiSeq_PHRED" : forwardAvg1, "R2_Read_ID" : reverseName, "R2_MiSeq_PHRED" : reverseAvg1 }
+            for i in forwardAvg1:
+                stringFwdList.append(str(round(float(i), 2)))
+                
+            for j in reverseAvg1:
+                stringRevList.append(str(round(float(j), 2)))
+            
+            pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_PHRED" : stringFwdList, "R2_PHRED" : stringRevList }
             dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
         else:
-            forwardName.append(reverseName)
-            forwardAvg1.append(reverseAvg1)
-            singleMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_MiSeq_PHRED" : forwardAvg1, "R2_Read_ID" : reverseName, "R2_MiSeq_PHRED" : reverseAvg1 }
+            allName = forwardName + reverseName
+            allAverage = forwardAvg1 + reverseAvg1
+            for i in allAverage:
+                stringList.append(str(round(float(i), 2)))
+            singleMiSeqPHRED = {"Read_ID" : allName, "Read_PHRED" : stringList }
             dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
         
-        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/fwd_and_rev_PHRED.csv')   
+        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/fwd_and_rev_PHRED.csv', index=False)
+
 
