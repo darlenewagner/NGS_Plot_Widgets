@@ -27,7 +27,7 @@ parser.add_argument('filename1', type=ext_check('.fastq', argparse.FileType('r')
 ## outputType enables suppression of dataframe (.csv) output files or suppression of histogram (.png) output files
 parser.add_argument('--outputType', '-o', default='F', choices=['F', 'P', 'C', 'Q'], help="--outputType F for full output (plots and .csv), P for plots only, C for csv file with no plot, and Q for Q30 STDOUT summary only.")
 
-parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="--unpaired F for separate proportions for forward and reverse reads and --unpaired T for combined forward and reverse")
+parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="--unpaired F to calculate a proportion for forward and reverse reads separately and --unpaired T for combined forward and reverse or a file of single strand reads.")
 
 args = parser.parse_args()
 
@@ -38,6 +38,8 @@ args = parser.parse_args()
 myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
 
 csvRow1 = []
+forwardName = []
+reverseName = []
 forwardLen1 = []
 reverseLen1 = []
 forwardAvg1 = []
@@ -47,7 +49,6 @@ iter = 0
 
 myFastq1 = open(args.filename1[0].name, "r")
 
-
 r1Q30_1 = 0
 r1Len_1 = 1
 r2Q30_1 = 0
@@ -55,6 +56,7 @@ r2Len_1 = 1
 
 for record in SeqIO.parse(myFastq1, "fastq"):
         if(iter % 2 == 0):
+                forwardName.append(record.id)
                 j = 0
                 r1Len_1 = r1Len_1 + len(record.seq)
                 while( j < len(record.seq)):
@@ -63,6 +65,7 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                         j = j + 1
                 forwardAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
         elif(iter % 2 == 1):
+                reverseName.append(record.id)
                 strand = record.description.split(" ")
                 j = 0
                 r2Len_1 = r2Len_1 + len(record.seq)
@@ -95,7 +98,7 @@ if(args.outputType != 'C'):
         axes1[0].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes1[0].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes1[0].hist(forwardAvg1, bins = 40, color='blue')
-        axes1[0].set_title("R1 MiSeq " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
+        axes1[0].set_title("R1 " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
         axes1[0].set(ylabel='Read Counts')
 
         ## Plot PHRED Quality for R2 reads as 1D histogram
@@ -104,13 +107,21 @@ if(args.outputType != 'C'):
         axes1[1].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes1[1].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes1[1].hist(forwardAvg2, bins = 40, color='blue')
-        axes1[1].set_title("R1 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
+        axes1[1].set_title("R2 " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
-        fig1.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/fwd_miSeq_and_iSeq_PHRED.png')
+        fig1.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/fwd_and_rev_PHRED.png')
 
 if(args.outputType != 'P'):
-        totalMiSeqPHRED = { "R1_MiSeq_PHRED" : forwardAvg1, "R2_MiSeq_PHRED" : reverseAvg1 }
-        dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
-        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/fwd_rev_miSeq_PHRED.csv')   
+        dfMiSeqPHRED = pd.DataFrame()
+        if(args.unpaired == 'F'):
+            pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_MiSeq_PHRED" : forwardAvg1, "R2_Read_ID" : reverseName, "R2_MiSeq_PHRED" : reverseAvg1 }
+            dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
+        else:
+            forwardName.append(reverseName)
+            forwardAvg1.append(reverseAvg1)
+            singleMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_MiSeq_PHRED" : forwardAvg1, "R2_Read_ID" : reverseName, "R2_MiSeq_PHRED" : reverseAvg1 }
+            dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
+        
+        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/fwd_and_rev_PHRED.csv')   
 
