@@ -19,8 +19,27 @@ def ext_check(expected_ext, openner):
                 return openner(filename)
         return extension
 
+## Check input file for zero-length
+def check_for_empty(fastq_file):
+        path1 = Path(fastq_file)
+        if(path1.stat().st_size == 0):
+            raise ArgumentTypeError(f'{fastq_file} cannot be empty')
+    
+
+def readable_dir(prospective_dir):
+	if not os.path.isdir(prospective_dir):
+    		raise argparse.ArgumentTypeError("readable_dir:{0} is not a valid path".format(prospective_dir))
+	if os.access(prospective_dir, os.R_OK):
+		if( not prospective_dir.endswith("/") ):
+			prospective_dir = prospective_dir + "/"
+		return prospective_dir
+	else:
+		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
+
+origWD = os.getcwd()
+
 ## Two shuffled, paired-end .fastq files expected as input
-parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq', usage="Q30andDoubleShuffledFastq.py filepath/filename1.fastq filepath/filename2.fastq")
+parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq', usage="Q30andDoubleShuffledFastq.py filepath/filename1.fastq filepath/filename2.fastq --outDir outputFolder")
 
 parser.add_argument('filename1', type=ext_check('.fastq', argparse.FileType('r')), nargs='+')
 parser.add_argument('filename2', type=ext_check('.fastq', argparse.FileType('r')), nargs='+')
@@ -29,6 +48,9 @@ parser.add_argument('filename2', type=ext_check('.fastq', argparse.FileType('r')
 parser.add_argument('--outputType', '-o', default='F', choices=['F', 'P', 'C', 'Q'], help="--outputType F for full output (plots and .csv), P for plots only, C for csv file with no plot, and Q for Q30 STDOUT summary only.")
 
 parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="--unpaired F for separate proportions for forward and reverse reads and --unpaired T for combined forward and reverse")
+
+## output folder
+parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
 
 args = parser.parse_args()
 
@@ -40,6 +62,10 @@ myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
 print(args.filename2[0].name)
 if args.filename2 is not None:
         myTitle2 = re.split(r'[\.\/]', args.filename2[0].name)
+
+outFolder = args.outDir
+
+outFilePath = origWD + '/' + outFolder + '/'
 
 #print(myTitle1[len(myTitle1) - 2])
 #print(myTitle2[len(myTitle2) - 2])
@@ -161,7 +187,7 @@ if(args.outputType != 'C'):
         axes1[1].set_title("R1 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
-        fig1.savefig('/scicomp/home-pure/ydn3/nextflow_2023_for_read_mapping/SARS-CoV-2_MiSeq_VPipe_processed/fwd_miSeq_iSeq_PHRED_w_human.png')
+        fig1.savefig(outFilePath + 'fwd_miSeq_iSeq_PHRED_w_human.png')
         fig2, axes2 = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True, figsize=(14,20))
 
         ## Plot PHRED Quality for R1 reads as 1D histogram
@@ -182,9 +208,9 @@ if(args.outputType != 'C'):
         axes2[1].set_title("R2 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes2[1].set(ylabel='Read Counts')
         axes2[1].set(xlabel='Average Read Quality')
-        fig2.savefig('/scicomp/home-pure/ydn3/nextflow_2023_for_read_mapping/SARS-CoV-2_MiSeq_VPipe_processed/rev_miSeq_iSeq_PHRED_w_human.png')
+        fig2.savefig(outFilePath + 'rev_miSeq_iSeq_PHRED_w_human.png')
 
-if(args.outputType != 'P'):
+if((args.outputType != 'P') and (args.unpaired == 'T')):
         stringList1 = []
         stringList2 = []
         stringFwdList1 = []
@@ -208,5 +234,32 @@ if(args.outputType != 'P'):
         dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
         dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
         
-        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/nextflow_2023_for_read_mapping/SARS-CoV-2_MiSeq_VPipe_processed/fwd_rev_miSeq_PHRED_w_human.csv', index=False)   
-        dfiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/nextflow_2023_for_read_mapping/SARS-CoV-2_MiSeq_VPipe_processed/fwd_rev_iSeq_PHRED_w_human.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_rev_miSeq_PHRED_w_human.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + 'fwd_rev_iSeq_PHRED_w_human.csv', index=False)
+
+if((args.outputType != 'P') and (args.unpaired == 'F')):
+        stringList1 = []
+        stringList2 = []
+        stringFwdList1 = []
+        stringFwdList2 = []
+        #stringRevList1 = []
+        #stringRevList2 = []
+        for i1 in forwardAvg1:
+            stringFwdList1.append(str(round(float(i1), 2)))
+        #for j1 in reverseAvg1:
+        #    stringRevList1.append(str(round(float(j1), 2)))
+            
+        totalMiSeqPHRED = { "Read_ID" : forwardName1, "MiSeq_PHRED" : stringFwdList1 }
+
+        for i2 in forwardAvg2:
+            stringFwdList2.append(str(round(float(i2), 2)))
+        #for j2 in reverseAvg2:
+        #    stringRevList2.append(str(round(float(j2), 2)))
+        
+        totaliSeqPHRED = { "Read_ID" : forwardName2, "iSeq_PHRED" : stringFwdList2 }
+        
+        dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
+        dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
+        
+        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_rev_miSeq_PHRED_w_human.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + 'fwd_rev_iSeq_PHRED_w_human.csv', index=False)
