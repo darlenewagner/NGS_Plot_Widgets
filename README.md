@@ -7,10 +7,11 @@ After changing directory (cd) into the subfolder where you want the Python virtu
 ```virtualenv -p /apps/x86_64/python/3.9.1/bin/python ./```
 
 The specific path for virtualenv may differ according to where your python binary is installed on your system.
-Next, install the two prerequisite Python modules, Biopython and Matplotlib:
+Next, install the three prerequisite Python modules: Biopython, Matplotlib, and pandas:
 
 ```bin/pip install biopython```<br/>
-```bin/pip install matplotlib```
+```bin/pip install matplotlib```<br/>
+```bin/pip install pandas```
 
 Then, install NGS_Plot_Widgets by git clone:
 
