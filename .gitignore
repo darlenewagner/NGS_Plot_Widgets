@@ -1,0 +1,4 @@
+#Ignore these directories:
+ExampleData/
+Hidden_Files/
+bin/
