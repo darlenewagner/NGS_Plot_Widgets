@@ -47,7 +47,7 @@ parser.add_argument('filename2', type=ext_check('.fastq', argparse.FileType('r')
 ## outputType enables suppression of dataframe (.csv) output files or suppression of histogram (.png) output files
 parser.add_argument('--outputType', '-o', default='F', choices=['F', 'P', 'C', 'Q'], help="--outputType F for full output (plots and .csv), P for plots only, C for csv file with no plot, and Q for Q30 STDOUT summary only.")
 
-parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="--unpaired F for separate proportions for forward and reverse reads and --unpaired T for combined forward and reverse")
+parser.add_argument('--paired', '-u', default='F', choices=['T', 'F'], help="--paired F for separate forward and reverse (or pairing agnostic) and --paired T for fastq files with shuffled forward and reverse")
 
 ## output folder
 parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
@@ -120,10 +120,10 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                 reverseAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
         iter = iter + 1
 
-if(args.unpaired == 'F'):
+if(args.paired == 'T'):
         print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*r1Q30_1/r1Len_1, 100*r2Q30_1/r2Len_1))
 else:
-        print("%s, Paired_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_1 + r2Q30_1)/(r1Len_1 + r2Len_1)))
+        print("%s, Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_1 + r2Q30_1)/(r1Len_1 + r2Len_1)))
 
 
 r1Q30_2 = 0
@@ -154,10 +154,10 @@ if args.filename2 is not None:
                         reverseAvg2.append(statistics.mean(record.letter_annotations["phred_quality"]))
                 iter = iter + 1
 if args.filename2 is not None:
-        if(args.unpaired == 'F'):
+        if(args.paired == 'T'):
                 print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle2[len(myTitle2) - 2], 100*r1Q30_2/r1Len_2, 100*r2Q30_2/r2Len_2))
         else:
-                print("%s, Paired_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
+                print("%s, Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
 
 if(args.outputType == 'Q'):
         sys.exit()
@@ -210,7 +210,7 @@ if(args.outputType != 'C'):
         axes2[1].set(xlabel='Average Read Quality')
         fig2.savefig(outFilePath + 'rev_miSeq_iSeq_PHRED_w_human.png')
 
-if((args.outputType != 'P') and (args.unpaired == 'T')):
+if((args.outputType != 'P') and (args.paired == 'T')):
         stringList1 = []
         stringList2 = []
         stringFwdList1 = []
@@ -234,10 +234,10 @@ if((args.outputType != 'P') and (args.unpaired == 'T')):
         dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
         dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
         
-        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_rev_miSeq_PHRED_w_human.csv', index=False)   
-        dfiSeqPHRED.to_csv(outFilePath + 'fwd_rev_iSeq_PHRED_w_human.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED_paired.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED_paired.csv', index=False)
 
-if((args.outputType != 'P') and (args.unpaired == 'F')):
+if((args.outputType != 'P') and (args.paired == 'F')):
         stringList1 = []
         stringList2 = []
         stringFwdList1 = []
@@ -249,17 +249,17 @@ if((args.outputType != 'P') and (args.unpaired == 'F')):
         #for j1 in reverseAvg1:
         #    stringRevList1.append(str(round(float(j1), 2)))
             
-        totalMiSeqPHRED = { "Read_ID" : forwardName1, "MiSeq_PHRED" : stringFwdList1 }
+        totalMiSeqPHRED = { "Read_ID" : forwardName1, "File1_PHRED" : stringFwdList1 }
 
         for i2 in forwardAvg2:
             stringFwdList2.append(str(round(float(i2), 2)))
         #for j2 in reverseAvg2:
         #    stringRevList2.append(str(round(float(j2), 2)))
         
-        totaliSeqPHRED = { "Read_ID" : forwardName2, "iSeq_PHRED" : stringFwdList2 }
+        totaliSeqPHRED = { "Read_ID" : forwardName2, "File2_PHRED" : stringFwdList2 }
         
         dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
         dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
         
-        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_rev_miSeq_PHRED_w_human.csv', index=False)   
-        dfiSeqPHRED.to_csv(outFilePath + 'fwd_rev_iSeq_PHRED_w_human.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + 'File1_PHRED_single.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + 'File2_PHRED_single.csv', index=False)
