@@ -2,3 +2,9 @@
 ExampleData/
 Hidden_Files/
 bin/
+man/
+lib/
+share/
+
+#Ignore these files:
+pyvenv.cfg
