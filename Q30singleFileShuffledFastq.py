@@ -20,6 +20,26 @@ def ext_check(expected_ext, openner):
                 return openner(filename)
         return extension
 
+## Check input file for zero-length
+def check_for_empty(fastq_file):
+        path1 = Path(fastq_file)
+        if(path1.stat().st_size == 0):
+            raise ArgumentTypeError(f'{fastq_file} cannot be empty')
+
+
+def readable_dir(prospective_dir):
+        if not os.path.isdir(prospective_dir):
+                raise argparse.ArgumentTypeError("readable_dir:{0} is not a valid path".format(prospective_dir))
+        if os.access(prospective_dir, os.R_OK):
+                if( not prospective_dir.endswith("/") ):
+                        prospective_dir = prospective_dir + "/"
+                return prospective_dir
+        else:
+                raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
+
+origWD = os.getcwd()
+
+
 ## Two shuffled, paired-end .fastq files expected as input
 parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq', usage="Q30singleFileShuffledFastq.py filepath/filename1.fastq")
 
@@ -28,12 +48,16 @@ parser.add_argument('filename1', type=ext_check('.fastq', argparse.FileType('r')
 ## outputType enables suppression of dataframe (.csv) output files or suppression of histogram (.png) output files
 parser.add_argument('--outputType', '-o', default='F', choices=['F', 'P', 'C', 'Q'], help="--outputType F for full output (plots and .csv), P for plots only, C for csv file with no plot, and Q for Q30 STDOUT summary only.")
 
-parser.add_argument('--unpaired', '-u', default='F', choices=['T', 'F'], help="--unpaired F to calculate a proportion for forward and reverse reads separately and --unpaired T for combined forward and reverse or a file of single strand reads.")
+parser.add_argument('--paired', '-u', default='F', choices=['T', 'F'], help="--paired F to calculate a average PHRED for all reads together or --paired T for input file of forward and reverse shuffled together.")
+
+## output folder
+parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
 
 args = parser.parse_args()
 
-#print(args.filename1[0].name)
-#print(args.filename2[0].name)
+outFolder = args.outDir
+
+outFilePath = origWD + '/' + outFolder + '/'
 
 ## File names used in plot titles
 myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
@@ -41,6 +65,8 @@ myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
 csvRow1 = []
 forwardName = []
 reverseName = []
+allName = []
+allAvg = []
 forwardLen1 = []
 reverseLen1 = []
 forwardAvg1 = []
@@ -58,6 +84,7 @@ r2Len_1 = 1
 for record in SeqIO.parse(myFastq1, "fastq"):
         if(iter % 2 == 0):
                 forwardName.append(record.id)
+                allName.append(record.id)
                 j = 0
                 r1Len_1 = r1Len_1 + len(record.seq)
                 while( j < len(record.seq)):
@@ -65,8 +92,10 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                                 r1Q30_1 = r1Q30_1 + 1
                         j = j + 1
                 forwardAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
+                allAvg.append(statistics.mean(record.letter_annotations["phred_quality"]))
         elif(iter % 2 == 1):
                 reverseName.append(record.id)
+                allName.append(record.id)
                 strand = record.description.split(" ")
                 j = 0
                 r2Len_1 = r2Len_1 + len(record.seq)
@@ -75,6 +104,7 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                                 r2Q30_1 = r2Q30_1 + 1
                         j = j + 1
                 reverseAvg1.append(statistics.mean(record.letter_annotations["phred_quality"]))
+                allAvg.append(statistics.mean(record.letter_annotations["phred_quality"]))
         iter = iter + 1
 
 if(args.unpaired == 'F'):
@@ -111,31 +141,36 @@ if(args.outputType != 'C'):
         axes1[1].set_title("R2 " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
-        fig1.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/fwd_and_rev_PHRED.png')
+        fig1.savefig(outFilePath + 'fwd_and_rev_PHRED.png')
 
-if(args.outputType != 'P'):
+if((args.outputType != 'P') and (args.paired == 'T')):
 
         dfMiSeqPHRED = pd.DataFrame()
         stringList = []
         stringFwdList = []
         stringRevList = []
-        if(args.unpaired == 'F'):
-            for i in forwardAvg1:
-                stringFwdList.append(str(round(float(i), 2)))
+        for i in forwardAvg1:
+            stringFwdList.append(str(round(float(i), 2)))
                 
-            for j in reverseAvg1:
-                stringRevList.append(str(round(float(j), 2)))
+        for j in reverseAvg1:
+            stringRevList.append(str(round(float(j), 2)))
             
-            pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_PHRED" : stringFwdList, "R2_PHRED" : stringRevList }
-            dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
-        else:
-            allName = forwardName + reverseName
-            allAverage = forwardAvg1 + reverseAvg1
-            for i in allAverage:
-                stringList.append(str(round(float(i), 2)))
-            singleMiSeqPHRED = {"Read_ID" : allName, "Read_PHRED" : stringList }
-            dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
+        pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_PHRED" : stringFwdList, "R2_PHRED" : stringRevList }
+        dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
+            
+        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED.csv', index=False)
+            
+if((args.outputType != 'P') and (args.paired == 'F')):
+        dfMiSeqPHRED = pd.DataFrame()
+        stringList = []
         
-        dfMiSeqPHRED.to_csv('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/fwd_and_rev_PHRED.csv', index=False)
+        for i in allAvg:
+            stringList.append(str(round(float(i), 2)))
+        
+        singleMiSeqPHRED = {"Read_ID" : allName, "Read_PHRED" : stringList }
+        dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
+
+        dfMiSeqPHRED.to_csv(outFilePath + 'all_PHRED.csv', index=False)
+
 
 
