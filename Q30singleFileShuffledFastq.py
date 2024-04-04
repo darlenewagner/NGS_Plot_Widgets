@@ -5,7 +5,7 @@ from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from tabulate import tabulate
+#from tabulate import tabulate
 
 ## Script for plotting average PHRED score per read and outputting data frames of PHRED averages
 ## Requires Biopython, Numpy, and Matplotlib
@@ -41,9 +41,9 @@ origWD = os.getcwd()
 
 
 ## Two shuffled, paired-end .fastq files expected as input
-parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq', usage="Q30singleFileShuffledFastq.py filepath/filename1.fastq")
+parser = argparse.ArgumentParser(description='Computes sequence lengths and average PHRED for shuffled paired reads in fastq', usage="Q30singleFileShuffledFastq.py filepath/filename.fastq")
 
-parser.add_argument('filename1', type=ext_check('.fastq', argparse.FileType('r')), nargs='+')
+parser.add_argument('filename', type=ext_check('.fastq', argparse.FileType('r')), nargs='+')
 
 ## outputType enables suppression of dataframe (.csv) output files or suppression of histogram (.png) output files
 parser.add_argument('--outputType', '-o', default='F', choices=['F', 'P', 'C', 'Q'], help="--outputType F for full output (plots and .csv), P for plots only, C for csv file with no plot, and Q for Q30 STDOUT summary only.")
@@ -60,7 +60,7 @@ outFolder = args.outDir
 outFilePath = origWD + '/' + outFolder + '/'
 
 ## File names used in plot titles
-myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
+myTitle1 = re.split(r'[\.\/]', args.filename[0].name)
 
 csvRow1 = []
 forwardName = []
@@ -74,7 +74,7 @@ reverseAvg1 = []
 
 iter = 0
 
-myFastq1 = open(args.filename1[0].name, "r")
+myFastq1 = open(args.filename[0].name, "r")
 
 r1Q30_1 = 0
 r1Len_1 = 1
@@ -107,7 +107,7 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                 allAvg.append(statistics.mean(record.letter_annotations["phred_quality"]))
         iter = iter + 1
 
-if(args.unpaired == 'F'):
+if(args.paired == 'T'):
         print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*r1Q30_1/r1Len_1, 100*r2Q30_1/r2Len_1))
 else:
         print("%s, Paired_Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_1 + r2Q30_1)/(r1Len_1 + r2Len_1)))
@@ -117,7 +117,7 @@ if(args.outputType == 'Q'):
         sys.exit()
 
 
-if(args.outputType != 'C'):
+if((args.outputType != 'C') and (args.paired == 'T')):
         SMALL_SIZE = 20
         MEDIUM_SIZE = 24
         BIG_SIZE = 30
@@ -137,11 +137,28 @@ if(args.outputType != 'C'):
         axes1[1].yaxis.label.set_size(MEDIUM_SIZE)
         axes1[1].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes1[1].tick_params(axis='y', labelsize=SMALL_SIZE)
-        axes1[1].hist(forwardAvg2, bins = 40, color='blue')
-        axes1[1].set_title("R2 " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
+        axes1[1].hist(reverseAvg1, bins = 40, color='red')
+        axes1[1].set_title("R2 " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
         fig1.savefig(outFilePath + 'fwd_and_rev_PHRED.png')
+
+if((args.outputType != 'C') and (args.paired == 'F')):
+        SMALL_SIZE = 20
+        MEDIUM_SIZE = 24
+        BIG_SIZE = 30
+        fig1, axes1 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(14,11))
+
+        ## Plot PHRED Quality for R1 reads as 1D histogram
+        axes1.xaxis.label.set_size(MEDIUM_SIZE)
+        axes1.yaxis.label.set_size(MEDIUM_SIZE)
+        axes1.tick_params(axis='x', labelsize=SMALL_SIZE)
+        axes1.tick_params(axis='y', labelsize=SMALL_SIZE)
+        axes1.hist(forwardAvg1, bins = 40, color='blue')
+        axes1.set_title("All " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
+        axes1.set(ylabel='Read Counts')
+        axes1.set(xlabel='Average Read Quality')
+        fig1.savefig(outFilePath + 'all_PHRED.png')
 
 if((args.outputType != 'P') and (args.paired == 'T')):
 
