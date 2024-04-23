@@ -37,6 +37,12 @@ def readable_dir(prospective_dir):
         else:
                 raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
+def getIsolateStr(filePathString):
+        splitStr = re.split(r'/', string=filePathString)
+        fileNameIdx = len(splitStr) - 1
+        isolateString = re.split(r'\.', string=splitStr[fileNameIdx])
+        return(isolateString)
+
 origWD = os.getcwd()
 
 
@@ -75,6 +81,8 @@ reverseAvg1 = []
 iter = 0
 
 myFastq1 = open(args.filename[0].name, "r")
+
+outputFileString = getIsolateStr(args.filename[0].name)
 
 r1Q30_1 = 0
 r1Len_1 = 1
