@@ -5,7 +5,7 @@ from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
+from pathlib import Path
 ## Script for plotting average PHRED score per read and outputting data frames of PHRED averages
 ## Requires Biopython, Numpy, and Matplotlib
 ## Required Input: Two shuffled, paired-end .fastq files with equal numbers of forward (R1) and reverse (R2) reads
@@ -36,6 +36,12 @@ def readable_dir(prospective_dir):
 	else:
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
+def getIsolateStr(filePathString):
+        splitStr = re.split(r'/', string=filePathString)
+        fileNameIdx = len(splitStr) - 1
+        isolateString = re.split(r'\.', string=splitStr[fileNameIdx])
+        return(isolateString[0])
+
 origWD = os.getcwd()
 
 ## Two shuffled, paired-end .fastq files expected as input
@@ -59,7 +65,7 @@ args = parser.parse_args()
 
 ## File names used in plot titles
 myTitle1 = re.split(r'[\.\/]', args.filename1[0].name)
-print(args.filename2[0].name)
+#print(args.filename2[0].name)
 if args.filename2 is not None:
         myTitle2 = re.split(r'[\.\/]', args.filename2[0].name)
 
@@ -92,6 +98,14 @@ iter = 0
 myFastq1 = open(args.filename1[0].name, "r")
 if args.filename2 is not None:
         myFastq2 = open(args.filename2[0].name, "r")
+
+## Get input filenames without suffix for naming outputs
+outputFileString1 = getIsolateStr(args.filename1[0].name)
+outputFileString2 = getIsolateStr(args.filename2[0].name)
+
+## Throw exception for zero-length file
+check_for_empty(args.filename1[0].name)
+check_for_empty(args.filename2[0].name)
 
 r1Q30_1 = 0
 r1Len_1 = 1
@@ -187,9 +201,10 @@ if(args.outputType != 'C'):
         axes1[1].set_title("R1 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
-        fig1.savefig(outFilePath + 'fwd_miSeq_iSeq_PHRED_w_human.png')
+        fig1.savefig(outFilePath + '/' + outputFileString1 + '_fwd_miSeq_iSeq_PHRED.png')
+        
         fig2, axes2 = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True, figsize=(14,20))
-
+        
         ## Plot PHRED Quality for R1 reads as 1D histogram
         axes2[0].xaxis.label.set_size(MEDIUM_SIZE)
         axes2[0].yaxis.label.set_size(MEDIUM_SIZE)
@@ -208,7 +223,7 @@ if(args.outputType != 'C'):
         axes2[1].set_title("R2 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
         axes2[1].set(ylabel='Read Counts')
         axes2[1].set(xlabel='Average Read Quality')
-        fig2.savefig(outFilePath + 'rev_miSeq_iSeq_PHRED_w_human.png')
+        fig2.savefig(outFilePath + '/' + outputFileString2 + '_rev_miSeq_iSeq_PHRED.png')
 
 if((args.outputType != 'P') and (args.paired == 'T')):
         stringList1 = []
@@ -234,8 +249,8 @@ if((args.outputType != 'P') and (args.paired == 'T')):
         dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
         dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
         
-        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED_paired.csv', index=False)   
-        dfiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED_paired.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString1 + '_fwd_and_rev_PHRED.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + '/' + outputFileString2 + '_fwd_and_rev_PHRED.csv', index=False)
 
 if((args.outputType != 'P') and (args.paired == 'F')):
         stringList1 = []
@@ -261,5 +276,5 @@ if((args.outputType != 'P') and (args.paired == 'F')):
         dfMiSeqPHRED = pd.DataFrame(totalMiSeqPHRED)
         dfiSeqPHRED = pd.DataFrame(totaliSeqPHRED)
         
-        dfMiSeqPHRED.to_csv(outFilePath + 'File1_PHRED_single.csv', index=False)   
-        dfiSeqPHRED.to_csv(outFilePath + 'File2_PHRED_single.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString1 + '_single_PHRED.csv', index=False)   
+        dfiSeqPHRED.to_csv(outFilePath + '/' + outputFileString2 + '_single_PHRED.csv', index=False)
