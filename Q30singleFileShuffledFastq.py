@@ -5,6 +5,7 @@ from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from pathlib import Path
 #from tabulate import tabulate
 
 ## Script for plotting average PHRED score per read and outputting data frames of PHRED averages
@@ -41,7 +42,7 @@ def getIsolateStr(filePathString):
         splitStr = re.split(r'/', string=filePathString)
         fileNameIdx = len(splitStr) - 1
         isolateString = re.split(r'\.', string=splitStr[fileNameIdx])
-        return(isolateString)
+        return(isolateString[0])
 
 origWD = os.getcwd()
 
@@ -83,6 +84,9 @@ iter = 0
 myFastq1 = open(args.filename[0].name, "r")
 
 outputFileString = getIsolateStr(args.filename[0].name)
+
+## Throw exception for zero-length file
+check_for_empty(args.filename[0].name)
 
 r1Q30_1 = 0
 r1Len_1 = 1
@@ -149,7 +153,7 @@ if((args.outputType != 'C') and (args.paired == 'T')):
         axes1[1].set_title("R2 " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
-        fig1.savefig(outFilePath + 'fwd_and_rev_PHRED.png')
+        fig1.savefig(outFilePath + '/' + outputFileString + '_fwd_and_rev_PHRED.png')
 
 if((args.outputType != 'C') and (args.paired == 'F')):
         SMALL_SIZE = 20
@@ -166,7 +170,7 @@ if((args.outputType != 'C') and (args.paired == 'F')):
         axes1.set_title("All " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
         axes1.set(ylabel='Read Counts')
         axes1.set(xlabel='Average Read Quality')
-        fig1.savefig(outFilePath + 'all_PHRED.png')
+        fig1.savefig(outFilePath + '/' + outputFileString + '_all_PHRED.png')
 
 if((args.outputType != 'P') and (args.paired == 'T')):
 
@@ -183,7 +187,7 @@ if((args.outputType != 'P') and (args.paired == 'T')):
         pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_PHRED" : stringFwdList, "R2_PHRED" : stringRevList }
         dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
             
-        dfMiSeqPHRED.to_csv(outFilePath + 'fwd_and_rev_PHRED.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_fwd_and_rev_PHRED.csv', index=False)
             
 if((args.outputType != 'P') and (args.paired == 'F')):
         dfMiSeqPHRED = pd.DataFrame()
@@ -195,7 +199,7 @@ if((args.outputType != 'P') and (args.paired == 'F')):
         singleMiSeqPHRED = {"Read_ID" : allName, "Read_PHRED" : stringList }
         dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
 
-        dfMiSeqPHRED.to_csv(outFilePath + 'all_PHRED.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_PHRED.csv', index=False)
 
 
 
