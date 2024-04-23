@@ -171,7 +171,7 @@ if args.filename2 is not None:
         if(args.paired == 'T'):
                 print("%s, Forward_Q30%%: %2.2f, Reverse_Q30%%: %2.2f" % (myTitle2[len(myTitle2) - 2], 100*r1Q30_2/r1Len_2, 100*r2Q30_2/r2Len_2))
         else:
-                print("%s, Q30%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
+                print("%s, Q30%%: %2.2f" % (myTitle2[len(myTitle2) - 2], 100*(r1Q30_2 + r2Q30_2)/(r1Len_2 + r2Len_2)))
 
 if(args.outputType == 'Q'):
         sys.exit()
