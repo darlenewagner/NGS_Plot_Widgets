@@ -114,7 +114,7 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                 #        j = j + 1
                 forwardAvg1.append(r1GC_1/len(record.seq))
                 r1TotalGC_1 = r1TotalGC_1 + r1GC_1
-                #allAvg.append(statistics.mean(record.letter_annotations["phred_quality"]))
+                allAvg.append(r1GC_1/len(record.seq))
         elif(iter % 2 == 1):
                 reverseName.append(record.id)
                 allName.append(record.id)
@@ -129,13 +129,13 @@ for record in SeqIO.parse(myFastq1, "fastq"):
                 #        if((BasePairs_2[j] == 'G') or (BasePairs_2[j] == 'C')):
                 #                r2GC_1 = r2GC_1 + 1
                 #        j = j + 1
-                forwardAvg1.append(r2GC_1/len(record.seq))
+                reverseAvg1.append(r2GC_1/len(record.seq))
                 r2TotalGC_1 = r2TotalGC_1 + r2GC_1                
-                #allAvg.append(statistics.mean(record.letter_annotations["phred_quality"]))
+                allAvg.append(r2GC_1/len(record.seq))
         iter = iter + 1
 
 if(args.paired == 'T'):
-        print("%s, Forward_G+C%%: %2.2f, Reverse_G+C%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*r1Total_1/r1Len_1, 100*r2TotalGC_1/r2Len_1))
+        print("%s, Forward_G+C%%: %2.2f, Reverse_G+C%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*r1TotalGC_1/r1Len_1, 100*r2TotalGC_1/r2Len_1))
 else:
         print("%s, Paired_G+C%%: %2.2f" % (myTitle1[len(myTitle1) - 2], 100*(r1TotalGC_1 + r2TotalGC_1)/(r1Len_1 + r2Len_1)))
 
@@ -194,27 +194,27 @@ if((args.outputType != 'P') and (args.paired == 'T')):
         stringFwdList = []
         stringRevList = []
         for i in forwardAvg1:
-            stringFwdList.append(str(round(float(i), 2)))
+            stringFwdList.append(str(round(float(100*i), 2)))
                 
         for j in reverseAvg1:
-            stringRevList.append(str(round(float(j), 2)))
+            stringRevList.append(str(round(float(100*j), 2)))
             
-        pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_PHRED" : stringFwdList, "R2_PHRED" : stringRevList }
+        pairedMiSeqPHRED = { "R1_Read_ID" : forwardName,  "R1_GC" : stringFwdList, "R2_GC" : stringRevList }
         dfMiSeqPHRED = pd.DataFrame(pairedMiSeqPHRED)
             
-        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_fwd_and_rev_PHRED.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_fwd_and_rev_GCperc.csv', index=False)
             
 if((args.outputType != 'P') and (args.paired == 'F')):
         dfMiSeqPHRED = pd.DataFrame()
         stringList = []
         
-        #for i in allAvg:
-        #    stringList.append(str(round(float(i), 2)))
+        for i in allAvg:
+            stringList.append(str(round(float(100*i), 2)))
         
-        singleMiSeqPHRED = {"Read_ID" : allName, "Read_PHRED" : stringList }
+        singleMiSeqPHRED = {"Read_ID" : allName, "Read_GC" : stringList }
         dfMiSeqPHRED = pd.DataFrame(singleMiSeqPHRED)
 
-        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_PHRED.csv', index=False)
+        dfMiSeqPHRED.to_csv(outFilePath + '/' + outputFileString + '_GCperc.csv', index=False)
 
 
 
