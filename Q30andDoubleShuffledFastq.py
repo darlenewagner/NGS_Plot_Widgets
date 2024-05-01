@@ -79,6 +79,8 @@ outFilePath = origWD + '/' + outFolder + '/'
 csvRow1 = []
 forwardName1 = []
 reverseName1 = []
+allName1 = []
+allAvg1 = []
 forwardLen1 = []
 reverseLen1 = []
 forwardAvg1 = []
@@ -90,6 +92,8 @@ if args.filename2 is not None:
         csvRow2 = []
         forwardLen2 = []
         reverseLen2 = []
+        allName2 = []
+        allAvg2 = []
         forwardAvg2 = []
         reverseAvg2 = []
 
@@ -189,7 +193,8 @@ if(args.outputType != 'C'):
         axes1[0].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes1[0].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes1[0].hist(forwardAvg1, bins = 40, color='blue')
-        axes1[0].set_title("R1 MiSeq " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
+        newTitle1 = re.sub(r'Pairs', r'forward', myTitle1[len(myTitle1) - 2])
+        axes1[0].set_title("R1 MiSeq " + newTitle1, fontsize = BIG_SIZE)
         axes1[0].set(ylabel='Read Counts')
 
         ## Plot PHRED Quality for R2 reads as 1D histogram
@@ -198,7 +203,8 @@ if(args.outputType != 'C'):
         axes1[1].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes1[1].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes1[1].hist(forwardAvg2, bins = 40, color='blue')
-        axes1[1].set_title("R1 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
+        newTitle2 = re.sub(r'Pairs', r'forward', myTitle2[len(myTitle2) - 2])
+        axes1[1].set_title("R1 iSeq " + newTitle2, fontsize = BIG_SIZE)
         axes1[1].set(ylabel='Read Counts')
         axes1[1].set(xlabel='Average Read Quality')
         fig1.savefig(outFilePath + '/' + outputFileString1 + '_fwd_miSeq_iSeq_PHRED.png')
@@ -211,7 +217,8 @@ if(args.outputType != 'C'):
         axes2[0].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes2[0].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes2[0].hist(reverseAvg1, bins = 40, color='red')
-        axes2[0].set_title("R2 MiSeq " + myTitle1[len(myTitle1) - 2], fontsize = BIG_SIZE)
+        newTitle1 = re.sub(r'Pairs', r'reverse', myTitle1[len(myTitle1) - 2])
+        axes2[0].set_title("R2 MiSeq " + newTitle1, fontsize = BIG_SIZE)
         axes2[0].set(ylabel='Read Counts')
 
         ## Plot PHRED Quality for R2 reads as 1D histogram
@@ -220,7 +227,9 @@ if(args.outputType != 'C'):
         axes2[1].tick_params(axis='x', labelsize=SMALL_SIZE)
         axes2[1].tick_params(axis='y', labelsize=SMALL_SIZE)
         axes2[1].hist(reverseAvg2, bins = 40, color='red')
-        axes2[1].set_title("R2 iSeq " + myTitle2[len(myTitle2) - 2], fontsize = BIG_SIZE)
+        newTitle2 = re.sub(r'Pairs', r'reverse', myTitle2[len(myTitle2) - 2])
+        #print(newTitle)
+        axes2[1].set_title("R2 iSeq " + newTitle2, fontsize = BIG_SIZE)
         axes2[1].set(ylabel='Read Counts')
         axes2[1].set(xlabel='Average Read Quality')
         fig2.savefig(outFilePath + '/' + outputFileString2 + '_rev_miSeq_iSeq_PHRED.png')
