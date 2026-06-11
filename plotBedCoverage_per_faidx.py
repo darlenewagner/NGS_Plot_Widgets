@@ -1,0 +1,127 @@
+import os, sys, re, csv, statistics
+import argparse, logging, warnings
+from Bio import SeqIO
+import numpy as np
+from matplotlib import pyplot as plt
+
+## Script for calculating sequence length and average PHRED score per read
+## Requires a .bed or .bedGraph file as input followed by a corresponding faidx file
+## Outputs log messages to stdout and .png graphic to a file via Matplotlib
+## Requires Biopython, Numpy, and Matplotlib
+
+## Function: A closure for file extension checking
+
+def ext_check1(expected_ext, another_ext, openner):
+        def extension(filename):
+                if not (filename.endswith(expected_ext) or filename.endswith(another_ext)):
+                        raise ValueError()
+                return openner(filename)
+        return extension
+
+def ext_check2(fai_ext, other_fai_ext, openner):
+        def extension(filename):
+                if not (filename.endswith(fai_ext) or filename.endswith(other_fai_ext)):
+                        raise ValueError()
+                return openner(filename)
+        return extension
+
+
+parser = argparse.ArgumentParser(description='Plots coverage from a .bed file and its .faidx file as a line plot', usage="plotBedCoverage.py filepath/filename.bed filepath/filename.fasta.faidx")
+
+parser.add_argument('filename1', type=ext_check1('.bedGraph', '.bed', argparse.FileType('r')))
+
+parser.add_argument('filename2', type=ext_check2('.fasta.fai', '.fa.fai', argparse.FileType('r')))
+
+parser.add_argument('--window', '-w', default='10', type=int)
+
+args = parser.parse_args()
+
+# echo input file name
+print(args.filename1.name)
+
+
+myTitle = re.split(r'[\/.]', args.filename1.name)
+
+print(myTitle[len(myTitle) - 2])
+
+shortTitle = re.split(r'[\/.]', myTitle[len(myTitle) - 1])
+
+csvRow = []
+forwardLen = []
+reverseLen = []
+coordinates = []
+coverage = []
+referenceName = ''
+
+iter = 0
+# avoid plotting every point, plot average of every 5th, 10th, or 20th point
+smooth = []
+
+window = int(args.window)
+
+## Coerce original args.window values to be divisible by 5
+if window < 6:
+        window = 5
+elif window > 14:
+        window = 20
+
+print("window = " + str(window))
+
+first_line = "";
+myCoverage = open(args.filename1.name, "r")
+
+with open(args.filename2.name, "r") as myLength:
+        first_line = myLength.readline().rstrip('\n')
+
+genomeLength = re.split(r'\s+', first_line)
+
+myInitialCoord = 1
+myEndCoord = int(genomeLength[1])
+print(myEndCoord)
+
+for line in myCoverage:
+        lineData = re.split(r'\s+', line)
+        referenceName = lineData[0]
+        coordinates.append(int(lineData[1]))
+        coverage.append(int(lineData[2]))
+        iter = iter + 1
+
+idx = 0
+adjustedCoordinates = []
+adjustedCoverage = []
+
+while myInitialCoord < myEndCoord:
+        if( myInitialCoord == coordinates[idx] ):
+                print(coverage[idx])
+                adjustedCoverage.append(coverage[idx])
+                idx = idx + 1
+                adjustedCoordinates.append( myInitialCoord )
+                myInitialCoord = myInitialCoord + 1
+        else:
+                print(0)
+                adjustedCoverage.append( 0 )
+                adjustedCoordinates.append( myInitialCoord )
+                myInitialCoord = myInitialCoord + 1
+
+myXticks = []
+iter = 0
+# Generate X-axis labels
+for count in adjustedCoordinates:
+        if(iter % 200 == 0):
+                myXticks.append(count)
+        iter = iter + 1
+
+
+## A single plot in the subplots.  Padding of 15% on bottom margin and 10% for the other three margins.
+fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10,7), gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
+
+## Plot Genome Coverage as line plot
+axes.plot(adjustedCoordinates, adjustedCoverage)
+axes.set_xticks(myXticks, myXticks, rotation='vertical')
+axes.set_title("Sample " + myTitle[len(myTitle) - 2] + " Reads")
+axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
+axes.set_ylabel('Coverage (X) at Position')
+#axes.margins(0.2)
+
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/win' + str(window) + '_' + myTitle[len(myTitle) - 2] + '_to_' + referenceName + '.png')
+

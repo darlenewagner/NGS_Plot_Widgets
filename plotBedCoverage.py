@@ -10,16 +10,16 @@ from matplotlib import pyplot as plt
 
 ## Function: A closure for file extension checking
 
-def ext_check(expected_ext, openner):
+def ext_check(expected_ext, another_ext, openner):
         def extension(filename):
-                if not filename.endswith(expected_ext):
+                if not (filename.endswith(expected_ext) or filename.endswith(another_ext)):
                         raise ValueError()
                 return openner(filename)
         return extension
 
 parser = argparse.ArgumentParser(description='Plots coverage from a .bed file as a line plot', usage="plotBedCoverage.py filepath/filename.bedGraph")
 
-parser.add_argument('filename', nargs='+', type=ext_check('.bedGraph', argparse.FileType('r')))
+parser.add_argument('filename', nargs='+', type=ext_check('.bedGraph', '.bed', argparse.FileType('r')))
 
 parser.add_argument('--window', '-w', default='10', type=int)
 
@@ -57,11 +57,12 @@ elif window > 14:
 print("window = " + str(window))
 
 myCoverage = open(args.filename[0].name, "r")
+myInitialCoord = 1
 
 for line in myCoverage:
         lineData = re.split(r'\s+', line)
         if(iter % window == 0):
-                coordinates.append(lineData[1])
+                coordinates.append(lineData[1])                        
                 # add plotting point to smoothing window
                 smooth.append(int(lineData[2]))
                 # take average of smoothing window, 5, 10, or 20 points
@@ -95,5 +96,5 @@ axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes.set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
 
-fig.savefig('/scicomp/home-pure/ydn3/test_Python3.9.1/test_Biopython/w' + str(window) + '_' + shortTitle[0] + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/' + str(window) + '_' + shortTitle[0] + '_to_' + referenceName + '.png')
 
