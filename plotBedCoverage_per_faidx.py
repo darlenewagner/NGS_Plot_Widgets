@@ -44,7 +44,7 @@ myTitle = re.split(r'[\/.]', args.filename1.name)
 
 print(myTitle[len(myTitle) - 2])
 
-shortTitle = re.split(r'[\/.]', myTitle[len(myTitle) - 1])
+shortTitle = myTitle[1]
 
 csvRow = []
 forwardLen = []
@@ -90,8 +90,8 @@ idx = 0
 adjustedCoordinates = []
 adjustedCoverage = []
 
-while myInitialCoord < myEndCoord:
-        if( myInitialCoord == coordinates[idx] ):
+while myInitialCoord < myEndCoord - 1:
+        if(( myInitialCoord == coordinates[idx] ) and (idx < len(coordinates) - 1) ):
                 print(coverage[idx])
                 adjustedCoverage.append(coverage[idx])
                 idx = idx + 1
@@ -107,7 +107,7 @@ myXticks = []
 iter = 0
 # Generate X-axis labels
 for count in adjustedCoordinates:
-        if(iter % 200 == 0):
+        if(iter % 500 == 0):
                 myXticks.append(count)
         iter = iter + 1
 
@@ -118,10 +118,10 @@ fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10
 ## Plot Genome Coverage as line plot
 axes.plot(adjustedCoordinates, adjustedCoverage)
 axes.set_xticks(myXticks, myXticks, rotation='vertical')
-axes.set_title("Sample " + myTitle[len(myTitle) - 2] + " Reads")
+axes.set_title("Sample " + shortTitle + " Reads")
 axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes.set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
 
-fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/win' + str(window) + '_' + myTitle[len(myTitle) - 2] + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/win' + str(window) + '_' + shortTitle + '_to_' + referenceName + '.png')
 
