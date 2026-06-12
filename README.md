@@ -1,8 +1,23 @@
 # NGS_Plot_Widgets
 
 ### 1. Installation Instructions
-A <i>Python virtual environment</i> is recommended for installation of modules. The Python version should be 3.9 or higher.
-After changing directory (cd) into the subfolder where you want the Python virtual environment, write the following command:
+Until the Singularity-containerized version is availalbe, a <i>Python virtual environment</i> is recommended for installation of modules. The Python version should be 3.13 or higher.
+
+Install NGS_Plot_Widgets by git clone:
+
+```git clone https://github.com/darlenewagner/NGS_Plot_Widgets.git```
+
+Install python3.13+ locally or point to your systems python resource as shown:
+
+```module load python/3.13.7```
+
+Change working directory to NGS_Plot_Widgets:
+
+```cd NGS_Plot_Widgets```
+
+Set up your python3.13 virtual environment inside NGS_Plot_Widgets:
+
+
 
 ```virtualenv -p /apps/x86_64/python/3.9.1/bin/python ./```
 
@@ -13,9 +28,7 @@ Next, install the three prerequisite Python modules: Biopython, Matplotlib, and 
 ```bin/pip install matplotlib```<br/>
 ```bin/pip install pandas```
 
-Then, install NGS_Plot_Widgets by git clone:
 
-```git clone https://github.com/darlenewagner/NGS_Plot_Widgets.git```
 
 Finally, test fullPlotShuffledFastq.py using the included test fastq.gz:
 
