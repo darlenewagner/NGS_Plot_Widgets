@@ -65,9 +65,6 @@ if window < 6:
 elif window > 14:
         window = 20
 
-## set window inline
-window = 1;
-        
 print("window = " + str(window))
 
 first_line = "";
@@ -90,36 +87,26 @@ for line in myCoverage:
         iter = iter + 1
 
 idx = 0
-hiAdjustedCoordinates = []
-hiAdjustedCoverage = []
-loAdjustedCoordinates = []
-loAdjustedCoverage = []
-
+adjustedCoordinates = []
+adjustedCoverage = []
 
 while myInitialCoord < myEndCoord - 1:
         if(( myInitialCoord == coordinates[idx] ) and (idx < len(coordinates) - 1) ):
-                if(coverage[idx] < 21):
-                        loAdjustedCoverage.append(coverage[idx])
-                        loAdjustedCoordinates.append( myInitialCoord )
-                else:
-                        hiAdjustedCoverage.append(coverage[idx])
-                        hiAdjustedCoordinates.append( myInitialCoord )
+                print(coverage[idx])
+                adjustedCoverage.append(coverage[idx])
                 idx = idx + 1
+                adjustedCoordinates.append( myInitialCoord )
                 myInitialCoord = myInitialCoord + 1
         else:
-                #hiAdjustedCoverage.append( 0 )
-                #hiAdjustedCoordinates.append( myInitialCoord )
-                loAdjustedCoverage.append( 0 )
-                loAdjustedCoordinates.append( myInitialCoord )
+                print(0)
+                adjustedCoverage.append( 0 )
+                adjustedCoordinates.append( myInitialCoord )
                 myInitialCoord = myInitialCoord + 1
 
-for t in loAdjustedCoverage:
-     print(t)   
-                
 myXticks = []
 iter = 0
 # Generate X-axis labels
-for count in hiAdjustedCoordinates:
+for count in adjustedCoordinates:
         if(iter % 500 == 0):
                 myXticks.append(count)
         iter = iter + 1
@@ -129,8 +116,7 @@ for count in hiAdjustedCoordinates:
 fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10,7), gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
 
 ## Plot Genome Coverage as line plot
-axes.plot(hiAdjustedCoordinates, hiAdjustedCoverage, linestyle='None', marker='.')
-axes.plot(loAdjustedCoordinates, loAdjustedCoverage, linestyle='None', color='red', marker='.')
+axes.plot(adjustedCoordinates, adjustedCoverage)
 axes.set_xticks(myXticks, myXticks, rotation='vertical')
 axes.set_title("Sample " + shortTitle + " Reads")
 axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
