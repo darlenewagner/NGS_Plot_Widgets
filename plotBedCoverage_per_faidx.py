@@ -129,7 +129,7 @@ for count in hiAdjustedCoordinates:
 fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10,7), gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
 
 ## Plot Genome Coverage as line plot
-axes.plot(hiAdjustedCoordinates, hiAdjustedCoverage, linestyle='None', marker='.')
+axes.plot(hiAdjustedCoordinates, hiAdjustedCoverage, linestyle='-', marker='.')
 axes.plot(loAdjustedCoordinates, loAdjustedCoverage, linestyle='None', color='red', marker='.')
 axes.set_xticks(myXticks, myXticks, rotation='vertical')
 axes.set_title("Sample " + shortTitle + " Reads")
