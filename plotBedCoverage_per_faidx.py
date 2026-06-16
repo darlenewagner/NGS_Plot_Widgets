@@ -90,6 +90,7 @@ for line in myCoverage:
         iter = iter + 1
 
 idx = 0
+adjustedCoordinate = []
 hiAdjustedCoordinates = []
 hiAdjustedCoverage = []
 loAdjustedCoordinates = []
@@ -101,9 +102,11 @@ while myInitialCoord < myEndCoord - 1:
                 if(coverage[idx] < 21):
                         loAdjustedCoverage.append(coverage[idx])
                         loAdjustedCoordinates.append( myInitialCoord )
+                        adjustedCoordinate.append( myInitialCoord )
                 else:
                         hiAdjustedCoverage.append(coverage[idx])
                         hiAdjustedCoordinates.append( myInitialCoord )
+                        adjustedCoordinate.append( myInitialCoord )
                 idx = idx + 1
                 myInitialCoord = myInitialCoord + 1
         else:
@@ -111,6 +114,7 @@ while myInitialCoord < myEndCoord - 1:
                 #hiAdjustedCoordinates.append( myInitialCoord )
                 loAdjustedCoverage.append( 0 )
                 loAdjustedCoordinates.append( myInitialCoord )
+                adjustedCoordinate.append( myInitialCoord )
                 myInitialCoord = myInitialCoord + 1
 
 for t in loAdjustedCoverage:
@@ -119,7 +123,7 @@ for t in loAdjustedCoverage:
 myXticks = []
 iter = 0
 # Generate X-axis labels
-for count in hiAdjustedCoordinates:
+for count in adjustedCoordinate:
         if(iter % 500 == 0):
                 myXticks.append(count)
         iter = iter + 1
@@ -131,6 +135,17 @@ fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10
 ## Plot Genome Coverage as line plot
 axes.plot(hiAdjustedCoordinates, hiAdjustedCoverage, linestyle='-', marker='.')
 axes.plot(loAdjustedCoordinates, loAdjustedCoverage, linestyle='None', color='red', marker='.')
+axes.text(0.078, 0.8, 'Segment 1', transform=axes.transAxes)
+axes.text(0.22, 0.75, 'Segment 2', transform=axes.transAxes)
+axes.text(0.34, 0.7, 'Segment 3', transform=axes.transAxes)
+axes.text(0.46, 0.65, 'Segment 4', transform=axes.transAxes)
+axes.text(0.58, 0.6, 'Seg. 5', transform=axes.transAxes)
+axes.text(0.65, 0.55, 'Seg. 6', transform=axes.transAxes)
+axes.text(0.72, 0.5, 'Seg. 7', transform=axes.transAxes)
+axes.text(0.775, 0.45, 'Seg. 8', transform=axes.transAxes)
+axes.text(0.825, 0.4, 'Seg. 9', transform=axes.transAxes)
+axes.text(0.875, 0.35, 'Seg. 10', transform=axes.transAxes)
+axes.text(0.915, 0.3, 'Seg. 11', transform=axes.transAxes)
 axes.set_xticks(myXticks, myXticks, rotation='vertical')
 axes.set_title("Sample " + shortTitle + " Reads")
 axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
