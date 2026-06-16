@@ -42,11 +42,13 @@ args = parser.parse_args()
 print(args.filename1.name)
 
 
-myTitle = re.split(r'[\/.]', args.filename1.name)
+myTitle1 = re.split(r'[\/.]', args.filename1.name)
+print(myTitle1[len(myTitle1) - 2])
+shortTitle1 = myTitle1[1]
 
-print(myTitle[len(myTitle) - 2])
-
-shortTitle = myTitle[1]
+myTitle2 = re.split(r'[\/.]', args.filename2.name)
+print(myTitle2[len(myTitle2) - 2])
+shortTitle2 = myTitle2[1]
 
 csvRow = []
 forwardLen = []
@@ -181,7 +183,7 @@ fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True, figsize=(10
 axes[0].plot(hiAdjustedCoordinates1, hiAdjustedCoverage1, linestyle='-', marker='.')
 axes[0].plot(loAdjustedCoordinates1, loAdjustedCoverage1, linestyle='None', color='red', marker='.')
 axes[0].set_xticks(myXticks, myXticks, rotation='vertical')
-axes[0].set_title("Sample " + shortTitle + " Reads")
+axes[0].set_title("Sample " + shortTitle1 + " Reads")
 axes[0].set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes[0].set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
@@ -200,10 +202,10 @@ for count in adjustedCoordinate2:
 axes[1].plot(hiAdjustedCoordinates2, hiAdjustedCoverage2, linestyle='-', marker='.')
 axes[1].plot(loAdjustedCoordinates2, loAdjustedCoverage2, linestyle='None', color='red', marker='.')
 axes[1].set_xticks(myXticks2, myXticks2, rotation='vertical')
-axes[1].set_title("Sample " + shortTitle + " Reads")
+axes[1].set_title("Sample " + shortTitle2 + " Reads")
 axes[1].set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes[1].set_ylabel('Coverage (X) at Position')
 
 
-fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/tandem_win' + str(window) + '_' + shortTitle + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/tandem_' + shortTitle1 + '_' + shortTitle2 + '_to_' + referenceName + '.png')
 
