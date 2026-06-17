@@ -125,9 +125,9 @@ for count in adjustedCoordinate:
 ## A single plot in the subplots.  Padding of 15% on bottom margin and 10% for the other three margins.
 fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10,7), gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
 
-## Mask out hiAdjustedCoverage between 20X and 29X
+## Mask out hiAdjustedCoverage between 20X and 60X
 npAdjustedCoverage = np.array(hiAdjustedCoverage)
-y_filtered = np.where(npAdjustedCoverage < 29, np.nan, npAdjustedCoverage)
+y_filtered = np.where(npAdjustedCoverage < 60, np.nan, npAdjustedCoverage)
 
 ## Plot Genome Coverage as line plot
 axes.plot(hiAdjustedCoordinates, y_filtered, linestyle='-', marker='.')
