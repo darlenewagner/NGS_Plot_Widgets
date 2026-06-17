@@ -26,13 +26,14 @@ def ext_check2(fai_ext, other_fai_ext, openner):
         return extension
 
 
-parser = argparse.ArgumentParser(description='Plots coverage from a .bed file and its .faidx file as a line plot', usage="plotBedCoverage.py filepath/filename.bed filepath/filename.fasta.faidx")
+parser = argparse.ArgumentParser(description='Creates a line plot of coverage from a .bed file with its corresponding .faidx file defining the x-axis', usage="plotBedCoverage.py filepath/filename.bed filepath/filename.fasta.faidx")
 
 parser.add_argument('filename1', type=ext_check1('.bedGraph', '.bed', argparse.FileType('r')))
 
 parser.add_argument('filename2', type=ext_check2('.fasta.fai', '.fa.fai', argparse.FileType('r')))
 
-parser.add_argument('--window', '-w', default='10', type=int)
+## The parameter, --rotavirus, determines whether or not to annotate segments in the line plot.
+parser.add_argument('--rotavirus', '-r', default='N', help="Add --rotavirus Y to command line for annotation of rotavirus segments, otherwise, omit --rotavirus paramter.")
 
 args = parser.parse_args()
 
@@ -57,18 +58,7 @@ iter = 0
 # avoid plotting every point, plot average of every 5th, 10th, or 20th point
 smooth = []
 
-window = int(args.window)
-
-## Coerce original args.window values to be divisible by 5
-if window < 6:
-        window = 5
-elif window > 14:
-        window = 20
-
-## set window inline
-window = 1;
-        
-print("window = " + str(window))
+rotavirus = args.rotavirus
 
 first_line = "";
 myCoverage = open(args.filename1.name, "r")
@@ -152,5 +142,5 @@ axes.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes.set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
 
-fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/win' + str(window) + '_' + shortTitle + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/rotavirus_' + str(rotavirus) + '_' + shortTitle + '_to_' + referenceName + '.png')
 
