@@ -36,6 +36,15 @@ parser.add_argument('filename3', type=ext_check2('.fasta.fai', '.fa.fai', argpar
 
 parser.add_argument('--window', '-w', default='10', type=int)
 
+## tandemBedCoverage_per_faidx.py not recommended for rotavirus or other segmented viral genomes.
+## parser.add_argument('--rotavirus', '-r', default='N', help="Add --rotavirus Y to command line for annotation of rotavirus segments, otherwise, omit --rotavirus parameter.")
+
+parser.add_argument('--virusType', '-v', default='miscellaneous', help="Add --virusType virus_name to create annotated output file name.")
+
+parser.add_argument('--ignoreLow1', '-i1', default='60', type=int, help="For not plotting coverage between 20X and an upper limit given by --ignoreLow")
+
+parser.add_argument('--ignoreLow2', '-i2', default='60', type=int, help="For not plotting coverage between 20X and an upper limit given by --ignoreLow")
+
 args = parser.parse_args()
 
 # echo input file name
@@ -207,5 +216,5 @@ axes[1].set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axes[1].set_ylabel('Coverage (X) at Position')
 
 
-fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/tandem_' + shortTitle1 + '_' + shortTitle2 + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/' args.virusType + '_' + shortTitle1 + '_' + shortTitle2 + '_to_' + referenceName + '.png')
 
