@@ -37,6 +37,7 @@ parser.add_argument('--rotavirus', '-r', default='N', help="Add --rotavirus Y to
 
 parser.add_argument('--virusType', '-v', default='miscellaneous', help="Add --virusType virus_name to create annotated output file name.")
 
+parser.add_argument('--ignoreLow', '-i', default='60', type=int, help="For not plotting coverage between 20X and an upper limit given by --ignoreLow")
 
 args = parser.parse_args()
 
@@ -127,7 +128,7 @@ fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, figsize=(10
 
 ## Mask out hiAdjustedCoverage between 20X and 60X
 npAdjustedCoverage = np.array(hiAdjustedCoverage)
-y_filtered = np.where(npAdjustedCoverage < 60, np.nan, npAdjustedCoverage)
+y_filtered = np.where(npAdjustedCoverage < int(args.ignoreLow), np.nan, npAdjustedCoverage)
 
 ## Plot Genome Coverage as line plot
 axes.plot(hiAdjustedCoordinates, y_filtered, linestyle='-', marker='.')
