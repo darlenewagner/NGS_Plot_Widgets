@@ -186,19 +186,22 @@ for count in adjustedCoordinate1:
 
 
 ## A single plot in the subplots.  Padding of 15% on bottom margin and 10% for the other three margins.
-fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True, figsize=(10,7), gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
+fig = plt.figure( figsize=(10,7) )
+##gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
 
 ## Mask out hiAdjustedCoverage1 between 20X and 60X
 npAdjustedCoverage1 = np.array(hiAdjustedCoverage1)
 y_filtered_1 = np.where(npAdjustedCoverage1 < int(args.ignoreLow1), np.nan, npAdjustedCoverage1)
 
+axe1 = fig.add_axes([0.08, 0.6, 0.89, 0.27])
+
 ## Plot 1 Genome Coverage as line plot
-axes[0].plot(hiAdjustedCoordinates1, y_filtered_1, linestyle='-', marker='.')
-axes[0].plot(loAdjustedCoordinates1, loAdjustedCoverage1, linestyle='None', color='red', marker='.')
-axes[0].set_xticks(myXticks, myXticks, rotation='vertical')
-axes[0].set_title( shortTitle1 + " Read Mapping Depth")
-axes[0].set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
-axes[0].set_ylabel('Coverage (X) at Position')
+axe1.plot(hiAdjustedCoordinates1, y_filtered_1, linestyle='-', marker='.')
+axe1.plot(loAdjustedCoordinates1, loAdjustedCoverage1, linestyle='None', color='red', marker='.')
+axe1.set_xticks(myXticks, myXticks, rotation='vertical')
+axe1.set_title( shortTitle1 + " Read Mapping Depth")
+axe1.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
+axe1.set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
 
 
@@ -214,14 +217,16 @@ for count in adjustedCoordinate2:
 npAdjustedCoverage2 = np.array(hiAdjustedCoverage2)
 y_filtered_2 = np.where(npAdjustedCoverage2 < int(args.ignoreLow2), np.nan, npAdjustedCoverage2)
 
+axe2 = fig.add_axes([0.08, 0.15, 0.89, 0.27])
+
 ## Plot 2 Genome Coverage as line plot
-axes[1].plot(hiAdjustedCoordinates2, y_filtered_2, linestyle='-', marker='.')
-axes[1].plot(loAdjustedCoordinates2, loAdjustedCoverage2, linestyle='None', color='red', marker='.')
-axes[1].set_xticks(myXticks2, myXticks2, rotation='vertical')
-axes[1].set_title("Sample " + shortTitle2 + " Read Mapping Depth")
-axes[1].set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
-axes[1].set_ylabel('Coverage (X) at Position')
+axe2.plot(hiAdjustedCoordinates2, y_filtered_2, linestyle='-', marker='.')
+axe2.plot(loAdjustedCoordinates2, loAdjustedCoverage2, linestyle='None', color='red', marker='.')
+axe2.set_xticks(myXticks2, myXticks2, rotation='vertical')
+axe2.set_title("Sample " + shortTitle2 + " Read Mapping Depth")
+axe2.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
+axe2.set_ylabel('Coverage (X) at Position')
 
 
-fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/tand_' + args.virusType + '_' + shortTitle1 + '_' + shortTitle2 + '_to_' + referenceName + '.png')
+fig.savefig('/scicomp/home-pure/ydn3/NGS_Plot_Widgets/Hidden_Files/' + args.virusType + '_' + shortTitle1 + '_' + shortTitle2 + '_to_' + referenceName + '.png')
 
