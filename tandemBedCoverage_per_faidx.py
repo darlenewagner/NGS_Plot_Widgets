@@ -41,7 +41,11 @@ parser.add_argument('--window', '-w', default='10', type=int)
 
 parser.add_argument('--virusType', '-v', default='miscellaneous', help="Add --virusType virus_name to create annotated output file name.")
 
+parser.add_argument('--plotTitle1', '-p1', default='', help="Provide --plotTitle1 string if input filename 1 is not the desired title.")
+
 parser.add_argument('--ignoreLow1', '-i1', default='60', type=int, help="For not plotting coverage between 20X and an upper limit given by --ignoreLow")
+
+parser.add_argument('--plotTitle2', '-p2', default='', help="Provide --plotTitle2 string if input filename 2 is not the desired title.")
 
 parser.add_argument('--ignoreLow2', '-i2', default='60', type=int, help="For not plotting coverage between 20X and an upper limit given by --ignoreLow")
 
@@ -107,6 +111,7 @@ hiAdjustedCoverage1 = []
 loAdjustedCoordinates1 = []
 loAdjustedCoverage1 = []
 
+maxCoverage = 0;
 
 while myInitialCoord < myEndCoord - 1:
         if(( myInitialCoord == coordinates[idx] ) and (idx < len(coordinates) - 1) ):
@@ -116,6 +121,8 @@ while myInitialCoord < myEndCoord - 1:
                         adjustedCoordinate1.append( myInitialCoord )
                 else:
                         hiAdjustedCoverage1.append(coverage[idx])
+                        if(coverage[idx] > maxCoverage):
+                                maxCoverage = coverage[idx]
                         hiAdjustedCoordinates1.append( myInitialCoord )
                         adjustedCoordinate1.append( myInitialCoord )
                 idx = idx + 1
@@ -158,6 +165,8 @@ while myInitialCoord < myEndCoord - 1:
                         adjustedCoordinate2.append( myInitialCoord )
                 else:
                         hiAdjustedCoverage2.append(coverage2[idx])
+                        if(coverage2[idx] > maxCoverage):
+                                maxCoverage = coverage2[idx]
                         hiAdjustedCoordinates2.append( myInitialCoord )
                         adjustedCoordinate2.append( myInitialCoord )
                 idx = idx + 1
@@ -184,6 +193,18 @@ for count in adjustedCoordinate1:
                 myXticks.append(count)
         iter = iter + 1
 
+yLimit = maxCoverage + (maxCoverage % 1000)
+
+myYtick = []
+ii = 0
+if(yLimit > 2500):
+        while( ii < yLimit ):
+                myYtick.append(ii)
+                ii = ii + 1000
+else:
+        while( ii < yLimit ):
+                myYtick.append(ii)
+                ii = ii + 500
 
 ## A single plot in the subplots.  Padding of 15% on bottom margin and 10% for the other three margins.
 fig = plt.figure( figsize=(10,7) )
@@ -199,6 +220,7 @@ axe1 = fig.add_axes([0.08, 0.6, 0.89, 0.27])
 axe1.plot(hiAdjustedCoordinates1, y_filtered_1, linestyle='-', marker='.')
 axe1.plot(loAdjustedCoordinates1, loAdjustedCoverage1, linestyle='None', color='red', marker='.')
 axe1.set_xticks(myXticks, myXticks, rotation='vertical')
+axe1.set_yticks(myYtick, myYtick)
 axe1.set_title( shortTitle1 + " Read Mapping Depth")
 axe1.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axe1.set_ylabel('Coverage (X) at Position')
@@ -223,7 +245,8 @@ axe2 = fig.add_axes([0.08, 0.15, 0.89, 0.27])
 axe2.plot(hiAdjustedCoordinates2, y_filtered_2, linestyle='-', marker='.')
 axe2.plot(loAdjustedCoordinates2, loAdjustedCoverage2, linestyle='None', color='red', marker='.')
 axe2.set_xticks(myXticks2, myXticks2, rotation='vertical')
-axe2.set_title("Sample " + shortTitle2 + " Read Mapping Depth")
+axe2.set_yticks(myYtick, myYtick)
+axe2.set_title(shortTitle2 + " Read Mapping Depth")
 axe2.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axe2.set_ylabel('Coverage (X) at Position')
 
