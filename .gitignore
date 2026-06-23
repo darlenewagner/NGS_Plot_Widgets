@@ -1,6 +1,7 @@
 #Ignore these directories:
 ExampleData/
 Test_Poliovirus/
+Test_Norovirus/
 Hidden_Files/
 venv/
 bin/
