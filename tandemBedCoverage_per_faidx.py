@@ -206,6 +206,9 @@ else:
                 myYtick.append(ii)
                 ii = ii + 500
 
+if(len(args.plotTitle1) > 1 ):
+        shortTitle1 = args.plotTitle1
+
 ## A single plot in the subplots.  Padding of 15% on bottom margin and 10% for the other three margins.
 fig = plt.figure( figsize=(10,7) )
 ##gridspec_kw=dict(left=0.1, right=0.9, bottom=0.15, top=0.9))
@@ -226,6 +229,8 @@ axe1.set_xlabel('Reference Genome, ' + referenceName + ', Coordinates')
 axe1.set_ylabel('Coverage (X) at Position')
 #axes.margins(0.2)
 
+if(len(args.plotTitle2) > 1 ):
+        shortTitle2 = args.plotTitle2
 
 myXticks2 = []
 iter = 0
