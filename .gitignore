@@ -2,6 +2,7 @@
 ExampleData/
 Test_Poliovirus/
 Test_Norovirus/
+Test_Astrovirus/
 Hidden_Files/
 venv/
 bin/
